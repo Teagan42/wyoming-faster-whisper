@@ -138,6 +138,25 @@ async def main() -> None:
         action="store_true",
         help="Don't check HuggingFace hub for updates every time",
     )
+    parser.add_argument(
+        "--best-of",
+        type=int,
+        default=1,
+        help="Number of candidates when sampling with non-zero temperature"
+    )
+    parser.add_argument(
+        "--vad-filter",
+        action="store_true",
+        default=True,
+        help="""Enable the voice activity detection (VAD) to filter out parts of the audio
+             without speech. This step is using the Silero VAD model https://github.com/snakers4/silero-vad"""
+    )
+    parser.add_argument(
+        "--without-timestamps",
+        action="store_true",
+        default=True,
+        help="Only sample text tokens."
+    )
     #
     parser.add_argument("--debug", action="store_true", help="Log DEBUG messages")
     parser.add_argument(

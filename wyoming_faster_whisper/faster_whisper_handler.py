@@ -53,7 +53,51 @@ class FasterWhisperTranscriber(Transcriber):
         }
         if self.task:
             kwargs["task"] = self.task
+            self._wav_file.writeframes(chunk.audio)
+            return True
 
-        segments, _info = self.model.transcribe(str(wav_path), **kwargs)
-        text = " ".join(segment.text for segment in segments)
-        return text
+        if AudioStop.is_type(event.type):
+            _LOGGER.debug(
+                "Audio stopped. Transcribing with initial prompt=%s",
+                self.initial_prompt,
+            )
+            assert self._wav_file is not None
+
+            self._wav_file.close()
+            self._wav_file = None
+
+            async with self.model_lock:
+                segments, _info = self.model.transcribe(
+                    self._wav_path,
+                    beam_size=self.cli_args.beam_size,
+                    language=self._language,
+                    initial_prompt=self.initial_prompt,
+                    best_of=self.cli_args.best_of,
+                    vad_fitler=self.cli_args.vad_fitler,
+                    without_timestamps=self.cli_args.without_timestamps,
+                )
+
+            text = " ".join(segment.text for segment in segments)
+            _LOGGER.info(text)
+
+            await self.write_event(Transcript(text=text).event())
+            _LOGGER.debug("Completed request")
+
+            # Reset
+            self._language = self.cli_args.language
+
+            return False
+
+        if Transcribe.is_type(event.type):
+            transcribe = Transcribe.from_event(event)
+            if transcribe.language:
+                self._language = transcribe.language
+                _LOGGER.debug("Language set to %s", transcribe.language)
+            return True
+
+        if Describe.is_type(event.type):
+            await self.write_event(self.wyoming_info_event)
+            _LOGGER.debug("Sent info")
+            return True
+
+        return True
