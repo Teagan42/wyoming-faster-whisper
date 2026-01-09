@@ -73,7 +73,7 @@ class FasterWhisperTranscriber(Transcriber):
                     language=self._language,
                     initial_prompt=self.initial_prompt,
                     best_of=self.cli_args.best_of,
-                    vad_fitler=self.cli_args.vad_fitler,
+                    vad_filter=self.cli_args.vad_filter,
                     without_timestamps=self.cli_args.without_timestamps,
                 )
 
