@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM nvidia/cuda:12.6.1-cudnn-runtime-ubuntu22.04
 ARG TARGETARCH
 ARG TARGETVARIANT
 
