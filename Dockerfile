@@ -13,11 +13,13 @@ RUN \
         python3-pip \
         python3-venv \
     \
-    && python3 -m venv .venv \
-    && .venv/bin/pip3 install --no-cache-dir -U \
+    && python3 -m venv .venv
+RUN \
+    .venv/bin/pip3 install --no-cache-dir -U \
         setuptools \
-        wheel \
-    && .venv/bin/pip3 install --no-cache-dir \
+        wheel
+RUN \
+    .venv/bin/pip3 install --no-cache-dir \
         --extra-index-url 'https://download.pytorch.org/whl/cpu' \
         'torch==2.6.0' \
     \
